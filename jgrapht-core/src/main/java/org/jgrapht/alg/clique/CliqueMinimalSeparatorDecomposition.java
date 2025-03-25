@@ -381,35 +381,6 @@ public class CliqueMinimalSeparatorDecomposition<V, E>
     }
 
     /**
-     * Get the generators of the separators of the triangulated graph, i.e. all vertices that
-     * generate a minimal separator of triangulated graph.
-     *
-     * @return List of generators.
-     */
-    public List<V> getGenerators()
-    {
-        if (generators == null) {
-            computeMinimalTriangulation();
-        }
-
-        return generators;
-    }
-
-    /**
-     * Get the minimal elimination ordering produced by the triangulation.
-     *
-     * @return The minimal elimination ordering.
-     */
-    public LinkedList<V> getMeo()
-    {
-        if (meo == null) {
-            computeMinimalTriangulation();
-        }
-
-        return meo;
-    }
-
-    /**
      * Get a map to know for each separator how many components it produces.
      *
      * @return A map from separators to integers (component count).
