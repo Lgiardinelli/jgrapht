@@ -39,6 +39,7 @@ public class StoerWagnerMinimumCut<V, E>
 {
 
     private static final int MINIMUM_REQUIRED_VERTICES = 2;
+    private static final double MIN_EDGE_WEIGHT = 0.0;
 
     final Graph<Set<V>, DefaultWeightedEdge> workingGraph;
 
@@ -71,7 +72,7 @@ public class StoerWagnerMinimumCut<V, E>
             workingGraph.addVertex(list);
         }
         for (E e : graph.edgeSet()) {
-            if (graph.getEdgeWeight(e) < 0.0) {
+            if (graph.getEdgeWeight(e) < MIN_EDGE_WEIGHT) {
                 throw new IllegalArgumentException("Negative edge weights not allowed");
             }
 
