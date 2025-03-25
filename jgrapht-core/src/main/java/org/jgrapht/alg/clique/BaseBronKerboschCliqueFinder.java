@@ -96,17 +96,6 @@ abstract class BaseBronKerboschCliqueFinder<V, E>
     }
 
     /**
-     * Check the computation has stopped due to a time limit or due to computing all maximal
-     * cliques.
-     *
-     * @return true if the computation has stopped due to a time limit, false otherwise
-     */
-    public boolean isTimeLimitReached()
-    {
-        return timeLimitReached;
-    }
-
-    /**
      * Lazily start the computation.
      */
     protected abstract void enumerateMaximalCliques();
