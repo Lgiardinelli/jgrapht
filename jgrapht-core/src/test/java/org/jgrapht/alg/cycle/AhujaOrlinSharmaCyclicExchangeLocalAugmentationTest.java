@@ -28,7 +28,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
- * Unit tests for {@link AhujaOrlinSharmaCyclicExchangeLocalAugmentation}.
+ * Unit tests for {@link AOSCyclicLocalAugmentation}.
  *
  * @author Christoph Grüne
  */
@@ -59,7 +59,7 @@ public class AhujaOrlinSharmaCyclicExchangeLocalAugmentationTest
         int lengthBound = 2;
 
         GraphWalk<Integer, DefaultEdge> calculatedCycle =
-            new AhujaOrlinSharmaCyclicExchangeLocalAugmentation<>(graph, lengthBound, labels, false)
+            new AOSCyclicLocalAugmentation<>(graph, lengthBound, labels, false)
                 .getLocalAugmentationCycle();
 
         assertEquals(cycle, calculatedCycle.getVertexList());
@@ -98,7 +98,7 @@ public class AhujaOrlinSharmaCyclicExchangeLocalAugmentationTest
         int lengthBound = 5;
 
         GraphWalk<Integer, DefaultEdge> calculatedCycle =
-            new AhujaOrlinSharmaCyclicExchangeLocalAugmentation<>(graph, lengthBound, labels, false)
+            new AOSCyclicLocalAugmentation<>(graph, lengthBound, labels, false)
                 .getLocalAugmentationCycle();
 
         assertEquals(cycle, calculatedCycle.getVertexList());
@@ -136,7 +136,7 @@ public class AhujaOrlinSharmaCyclicExchangeLocalAugmentationTest
         int lengthBound = 5;
 
         GraphWalk<Integer, DefaultEdge> calculatedCycle =
-            new AhujaOrlinSharmaCyclicExchangeLocalAugmentation<>(graph, lengthBound, labels, false)
+            new AOSCyclicLocalAugmentation<>(graph, lengthBound, labels, false)
                 .getLocalAugmentationCycle();
 
         assertEquals(cycle, calculatedCycle.getVertexList());
@@ -186,7 +186,7 @@ public class AhujaOrlinSharmaCyclicExchangeLocalAugmentationTest
         int lengthBound1 = 4;
 
         GraphWalk<Integer, DefaultEdge> calculatedCycle1 =
-            new AhujaOrlinSharmaCyclicExchangeLocalAugmentation<>(
+            new AOSCyclicLocalAugmentation<>(
                 graph, lengthBound1, labels, false).getLocalAugmentationCycle();
 
         assertEquals(0, calculatedCycle1.getWeight(), 0.0000001);
@@ -195,7 +195,7 @@ public class AhujaOrlinSharmaCyclicExchangeLocalAugmentationTest
         int lengthBound2 = 6;
 
         GraphWalk<Integer, DefaultEdge> calculatedCycle2 =
-            new AhujaOrlinSharmaCyclicExchangeLocalAugmentation<>(
+            new AOSCyclicLocalAugmentation<>(
                 graph, lengthBound2, labels, false).getLocalAugmentationCycle();
 
         assertEquals(cycle2, calculatedCycle2.getVertexList());
@@ -236,7 +236,7 @@ public class AhujaOrlinSharmaCyclicExchangeLocalAugmentationTest
         int lengthBound = 6;
 
         GraphWalk<Integer, DefaultEdge> calculatedCycle1 =
-            new AhujaOrlinSharmaCyclicExchangeLocalAugmentation<>(graph, lengthBound, labels, false)
+            new AOSCyclicLocalAugmentation<>(graph, lengthBound, labels, false)
                 .getLocalAugmentationCycle();
 
         assertEquals(-2, calculatedCycle1.getWeight(), 0.0000001);
@@ -314,7 +314,7 @@ public class AhujaOrlinSharmaCyclicExchangeLocalAugmentationTest
         int lengthBound = 6;
 
         GraphWalk<Integer, DefaultEdge> calculatedCycle =
-            new AhujaOrlinSharmaCyclicExchangeLocalAugmentation<>(graph, lengthBound, labels, false)
+            new AOSCyclicLocalAugmentation<>(graph, lengthBound, labels, false)
                 .getLocalAugmentationCycle();
 
         assertNotNull(calculatedCycle);
@@ -378,7 +378,7 @@ public class AhujaOrlinSharmaCyclicExchangeLocalAugmentationTest
         int lengthBound = 6;
 
         GraphWalk<Integer, DefaultEdge> calculatedCycle =
-            new AhujaOrlinSharmaCyclicExchangeLocalAugmentation<>(graph, lengthBound, labels, false)
+            new AOSCyclicLocalAugmentation<>(graph, lengthBound, labels, false)
                 .getLocalAugmentationCycle();
 
         assertNotNull(calculatedCycle);
@@ -438,7 +438,7 @@ public class AhujaOrlinSharmaCyclicExchangeLocalAugmentationTest
         int lengthBound = 6;
 
         GraphWalk<Integer, DefaultEdge> calculatedCycle =
-            new AhujaOrlinSharmaCyclicExchangeLocalAugmentation<>(graph, lengthBound, labels, false)
+            new AOSCyclicLocalAugmentation<>(graph, lengthBound, labels, false)
                 .getLocalAugmentationCycle();
 
         assertNotNull(calculatedCycle);
@@ -467,7 +467,7 @@ public class AhujaOrlinSharmaCyclicExchangeLocalAugmentationTest
         int lengthBound = 6;
 
         GraphWalk<Integer, DefaultEdge> calculatedCycle =
-            new AhujaOrlinSharmaCyclicExchangeLocalAugmentation<>(graph, lengthBound, labels, true)
+            new AOSCyclicLocalAugmentation<>(graph, lengthBound, labels, true)
                 .getLocalAugmentationCycle();
 
         assertNotNull(calculatedCycle);
@@ -520,7 +520,7 @@ public class AhujaOrlinSharmaCyclicExchangeLocalAugmentationTest
         int lengthBound = 8;
 
         GraphWalk<Integer, DefaultEdge> calculatedCycle =
-            new AhujaOrlinSharmaCyclicExchangeLocalAugmentation<>(graph, lengthBound, labels, true)
+            new AOSCyclicLocalAugmentation<>(graph, lengthBound, labels, true)
                 .getLocalAugmentationCycle();
 
         assertNotNull(calculatedCycle);
@@ -555,7 +555,7 @@ public class AhujaOrlinSharmaCyclicExchangeLocalAugmentationTest
         int lengthBound = 4;
 
         GraphWalk<Integer, DefaultEdge> calculatedCycle =
-            new AhujaOrlinSharmaCyclicExchangeLocalAugmentation<>(graph, lengthBound, labels, true)
+            new AOSCyclicLocalAugmentation<>(graph, lengthBound, labels, true)
                 .getLocalAugmentationCycle();
 
         assertNotNull(calculatedCycle);

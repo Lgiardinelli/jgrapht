@@ -276,10 +276,10 @@ public class AhujaOrlinSharmaCapacitatedMinimumSpanningTree<V, E>
             improvementGraph.updateImprovementGraph(
                 currentSolution, subtrees, partitionSpanningTrees, affected.getFirst(), tabuList);
 
-            AhujaOrlinSharmaCyclicExchangeLocalAugmentation<
-                Pair<Integer, ImprovementGraphVertexType>,
-                DefaultWeightedEdge> ahujaOrlinSharmaCyclicExchangeLocalAugmentation =
-                    new AhujaOrlinSharmaCyclicExchangeLocalAugmentation<>(
+            AOSCyclicLocalAugmentation<
+                            Pair<Integer, ImprovementGraphVertexType>,
+                            DefaultWeightedEdge> ahujaOrlinSharmaCyclicExchangeLocalAugmentation =
+                    new AOSCyclicLocalAugmentation<>(
                         improvementGraph.improvementGraph, lengthBound,
                         improvementGraph.cycleAugmentationLabels, bestImprovement);
 
@@ -699,7 +699,7 @@ public class AhujaOrlinSharmaCapacitatedMinimumSpanningTree<V, E>
      * those arc exists only if the exchange is feasible.
      * <p>
      * IDENTIFYING SUBSET DISJOINT CYCLES This is done via a heuristic which can be found here
-     * {@link AhujaOrlinSharmaCyclicExchangeLocalAugmentation} @see
+     * {@link AOSCyclicLocalAugmentation} @see
      * AhujaOrlinSharmaCyclicExchangeLocalAugmentation.
      */
     private class ImprovementGraph

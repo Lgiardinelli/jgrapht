@@ -44,7 +44,7 @@ import java.util.*;
  * This algorithm is used to detect valid cyclic exchanges in a cyclic exchange neighborhood for the
  * Capacitated Minomum Spanning Tree problem
  * {@link org.jgrapht.alg.spanning.AhujaOrlinSharmaCapacitatedMinimumSpanningTree}
- * 
+ *
  * @see org.jgrapht.alg.spanning.AhujaOrlinSharmaCapacitatedMinimumSpanningTree
  *
  * @param <V> the vertex type the graph
@@ -53,7 +53,7 @@ import java.util.*;
  * @author Christoph Grüne
  * @since June 7, 2018
  */
-public class AhujaOrlinSharmaCyclicExchangeLocalAugmentation<V, E>
+public class AOSCyclicLocalAugmentation<V, E>
 {
 
     /**
@@ -83,7 +83,7 @@ public class AhujaOrlinSharmaCyclicExchangeLocalAugmentation<V, E>
      * @param bestImprovement contains whether the best or the first improvement is returned: best
      *        if true, first if false
      */
-    public AhujaOrlinSharmaCyclicExchangeLocalAugmentation(
+    public AOSCyclicLocalAugmentation(
         Graph<V, E> graph, int lengthBound, Map<V, Integer> labelMap, boolean bestImprovement)
     {
         this.graph = Objects.requireNonNull(graph, "Graph cannot be null");
