@@ -225,9 +225,9 @@ public class HierholzerEulerianCycle<V, E>
         }
 
         for (E e : g.edgeSet()) {
-            VertexNode sNode = vertices.get(g.getEdgeSource(e));
-            VertexNode tNode = vertices.get(g.getEdgeTarget(e));
-            addEdge(sNode, tNode, e);
+            VertexNode sourceVertexNode = vertices.get(g.getEdgeSource(e));
+            VertexNode targetVertexNode = vertices.get(g.getEdgeTarget(e));
+            addEdge(sourceVertexNode, targetVertexNode, e);
         }
     }
 
