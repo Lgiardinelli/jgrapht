@@ -24,21 +24,21 @@ import java.util.concurrent.*;
 
 /**
  * Bron-Kerbosch maximal clique enumeration algorithm.
- * 
+ *
  * <p>
  * Implementation of the Bron-Kerbosch clique enumeration algorithm as described in:
  * <ul>
  * <li>R. Samudrala and J. Moult. A graph-theoretic algorithm for comparative modeling of protein
  * structure. Journal of Molecular Biology, 279(1):287--302, 1998.</li>
  * </ul>
- * 
+ *
  * <p>
  * The algorithm first computes all maximal cliques and then returns the result to the user. A
  * timeout can be set using the constructor parameters.
- * 
+ *
  * @param <V> the graph vertex type
  * @param <E> the graph edge type
- * 
+ *
  * @see PivotBronKerboschCliqueFinder
  * @see DegeneracyBronKerboschCliqueFinder
  *
@@ -73,7 +73,7 @@ public class BronKerboschCliqueFinder<V, E>
      * Lazily execute the enumeration algorithm.
      */
     @Override
-    protected void lazyRun()
+    protected void enumerateMaximalCliques()
     {
         if (allMaximalCliques == null) {
             if (!GraphTests.isSimple(graph)) {

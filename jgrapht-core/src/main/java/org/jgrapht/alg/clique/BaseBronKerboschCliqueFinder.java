@@ -57,7 +57,7 @@ abstract class BaseBronKerboschCliqueFinder<V, E>
 
     /**
      * Constructor
-     * 
+     *
      * @param graph the input graph; must be simple
      * @param timeout the maximum time to wait, if zero no timeout
      * @param unit the time unit of the timeout argument
@@ -79,26 +79,26 @@ abstract class BaseBronKerboschCliqueFinder<V, E>
     @Override
     public Iterator<Set<V>> iterator()
     {
-        lazyRun();
+        enumerateMaximalCliques();
         return allMaximalCliques.iterator();
     }
 
     /**
      * Create an iterator which returns only the maximum cliques of a graph. The iterator computes
      * all maximal cliques and then filters them by the size of the maximum found clique.
-     * 
+     *
      * @return an iterator which returns only the maximum cliques of a graph
      */
     public Iterator<Set<V>> maximumIterator()
     {
-        lazyRun();
+        enumerateMaximalCliques();
         return allMaximalCliques.stream().filter(c -> c.size() == maxSize).iterator();
     }
 
     /**
      * Check the computation has stopped due to a time limit or due to computing all maximal
      * cliques.
-     * 
+     *
      * @return true if the computation has stopped due to a time limit, false otherwise
      */
     public boolean isTimeLimitReached()
@@ -109,6 +109,6 @@ abstract class BaseBronKerboschCliqueFinder<V, E>
     /**
      * Lazily start the computation.
      */
-    protected abstract void lazyRun();
+    protected abstract void enumerateMaximalCliques();
 
 }
