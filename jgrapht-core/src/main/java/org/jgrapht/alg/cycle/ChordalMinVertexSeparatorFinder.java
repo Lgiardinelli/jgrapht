@@ -63,7 +63,7 @@ import java.util.*;
  * @author Timofey Chudakov
  * @see ChordalityInspector
  */
-public class ChordalGraphMinimalVertexSeparatorFinder<V, E>
+public class ChordalMinVertexSeparatorFinder<V, E>
 {
     /**
      * The graph in which minimal vertex separators to searched in
@@ -85,7 +85,7 @@ public class ChordalGraphMinimalVertexSeparatorFinder<V, E>
      *
      * @param graph the graph minimal separators to search in
      */
-    public ChordalGraphMinimalVertexSeparatorFinder(Graph<V, E> graph)
+    public ChordalMinVertexSeparatorFinder(Graph<V, E> graph)
     {
         this.graph = Objects.requireNonNull(graph);
         chordalityInspector =
