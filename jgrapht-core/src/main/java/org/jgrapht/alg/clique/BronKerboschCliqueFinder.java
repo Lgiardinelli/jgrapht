@@ -88,13 +88,13 @@ public class BronKerboschCliqueFinder<V, E>
                 nanosTimeLimit = Long.MAX_VALUE;
             }
 
-            findCliques(
+            searchMaximalCliques(
                 new ArrayList<>(), new ArrayList<>(graph.vertexSet()), new ArrayList<>(),
                 nanosTimeLimit);
         }
     }
 
-    private void findCliques(
+    private void searchMaximalCliques(
         List<V> potentialClique, List<V> candidates, List<V> alreadyFound,
         final long nanosTimeLimit)
     {
@@ -151,7 +151,7 @@ public class BronKerboschCliqueFinder<V, E>
                 maxSize = Math.max(maxSize, maximalClique.size());
             } else {
                 // recursive call
-                findCliques(potentialClique, newCandidates, newAlreadyFound, nanosTimeLimit);
+                searchMaximalCliques(potentialClique, newCandidates, newAlreadyFound, nanosTimeLimit);
             }
 
             // move candidate node from potentialClique to alreadyFound
