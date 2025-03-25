@@ -40,6 +40,8 @@ public class StoerWagnerMinimumCut<V, E>
 
     private static final int MINIMUM_REQUIRED_VERTICES = 2;
     private static final double MIN_EDGE_WEIGHT = 0.0;
+    private static final double DEFAULT_EDGE_WEIGHT_IF_NULL = 0.0;
+
 
     final Graph<Set<V>, DefaultWeightedEdge> workingGraph;
 
@@ -123,7 +125,7 @@ public class StoerWagnerMinimumCut<V, E>
                 continue;
             }
             DefaultWeightedEdge e = workingGraph.getEdge(v, a);
-            Double w = (e == null) ? 0.0 : workingGraph.getEdgeWeight(e);
+            Double w = (e == null) ? DEFAULT_EDGE_WEIGHT_IF_NULL : workingGraph.getEdgeWeight(e);
             VertexAndWeight vandw = new VertexAndWeight(v, w, e != null);
             queue.add(vandw);
             dmap.put(v, vandw);
