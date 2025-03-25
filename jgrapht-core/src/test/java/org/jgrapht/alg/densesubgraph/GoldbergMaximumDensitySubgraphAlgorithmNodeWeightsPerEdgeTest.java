@@ -45,7 +45,7 @@ public class GoldbergMaximumDensitySubgraphAlgorithmNodeWeightsPerEdgeTest
         Function<Graph<Pair<Integer, Double>, DefaultWeightedEdge>,
             MinimumSTCutAlgorithm<Pair<Integer, Double>, DefaultWeightedEdge>> alg)
     {
-        return new GoldbergMaximumDensitySubgraphAlgorithmNodeWeightPerEdgeWeight<>(
+        return new GoldbergMaxDensitySubgraphRatio<>(
             g, s, t, DEFAULT_EPS, alg);
     }
 

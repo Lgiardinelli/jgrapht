@@ -54,21 +54,21 @@ import java.util.function.*;
  *
  * @author Andre Immig
  */
-public class GoldbergMaximumDensitySubgraphAlgorithmNodeWeightPerEdgeWeight<
+public class GoldbergMaxDensitySubgraphRatio<
     V extends Pair<?, Double>, E>
     extends GoldbergMaximumDensitySubgraphAlgorithmBase<V, E>
 {
 
     /**
      * Constructor
-     * 
+     *
      * @param graph input for computation
      * @param s additional source vertex
      * @param t additional target vertex
      * @param epsilon to use for internal computation
      * @param algFactory function to construct the subalgorithm
      */
-    public GoldbergMaximumDensitySubgraphAlgorithmNodeWeightPerEdgeWeight(
+    public GoldbergMaxDensitySubgraphRatio(
         Graph<V, E> graph, V s, V t, double epsilon, Function<Graph<V, DefaultWeightedEdge>,
             MinimumSTCutAlgorithm<V, DefaultWeightedEdge>> algFactory)
     {
@@ -77,13 +77,13 @@ public class GoldbergMaximumDensitySubgraphAlgorithmNodeWeightPerEdgeWeight<
 
     /**
      * Convenience constructor that uses PushRelabel as default MinimumSTCutAlgorithm
-     * 
+     *
      * @param graph input for computation
      * @param s additional source vertex
      * @param t additional target vertex
      * @param epsilon to use for internal computation
      */
-    public GoldbergMaximumDensitySubgraphAlgorithmNodeWeightPerEdgeWeight(
+    public GoldbergMaxDensitySubgraphRatio(
         Graph<V, E> graph, V s, V t, double epsilon)
     {
         this(graph, s, t, epsilon, PushRelabelMFImpl::new);
