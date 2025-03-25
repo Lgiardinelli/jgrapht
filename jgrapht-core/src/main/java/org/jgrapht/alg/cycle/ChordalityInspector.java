@@ -371,19 +371,19 @@ public class ChordalityInspector<V, E>
      * precisely, returns those of {@code vertex}, whose mapped index in {@code map} is less then
      * the index of {@code vertex}.
      *
-     * @param vertexInOrder defines the mapping of vertices in {@code graph} to their indices in
+     * @param vertexOrderMap defines the mapping of vertices in {@code graph} to their indices in
      *        order.
      * @param vertex the vertex whose predecessors in order are to be returned.
      * @return the predecessors of {@code vertex} in order defines by {@code map}.
      */
-    private Set<V> getPredecessors(Map<V, Integer> vertexInOrder, V vertex)
+    private Set<V> getPredecessors(Map<V, Integer> vertexOrderMap, V vertex)
     {
         Set<V> predecessors = new HashSet<>();
-        Integer vertexPosition = vertexInOrder.get(vertex);
+        Integer vertexPosition = vertexOrderMap.get(vertex);
         Set<E> edges = graph.edgesOf(vertex);
         for (E edge : edges) {
             V oppositeVertex = Graphs.getOppositeVertex(graph, edge, vertex);
-            Integer destPosition = vertexInOrder.get(oppositeVertex);
+            Integer destPosition = vertexOrderMap.get(oppositeVertex);
             if (destPosition < vertexPosition) {
                 predecessors.add(oppositeVertex);
             }
