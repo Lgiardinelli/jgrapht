@@ -37,6 +37,9 @@ import java.util.*;
  */
 public class StoerWagnerMinimumCut<V, E>
 {
+
+    private static final int MINIMUM_REQUIRED_VERTICES = 2;
+
     final Graph<Set<V>, DefaultWeightedEdge> workingGraph;
 
     protected double bestCutWeight = Double.POSITIVE_INFINITY;
@@ -54,7 +57,7 @@ public class StoerWagnerMinimumCut<V, E>
     {
         GraphTests.requireUndirected(graph, "Graph must be undirected");
 
-        if (graph.vertexSet().size() < 2) {
+        if (graph.vertexSet().size() < MINIMUM_REQUIRED_VERTICES) {
             throw new IllegalArgumentException("Graph has less than 2 vertices");
         }
 
@@ -99,7 +102,7 @@ public class StoerWagnerMinimumCut<V, E>
 
     /**
      * Implements the MinimumCutPhase function of Stoer and Wagner.
-     * 
+     *
      * @param a the vertex
      */
     protected void minimumCutPhase(Set<V> a)
@@ -159,7 +162,7 @@ public class StoerWagnerMinimumCut<V, E>
 
     /**
      * Return the weight of the minimum cut
-     * 
+     *
      * @return the weight of the minimum cut
      */
     public double minCutWeight()
@@ -169,7 +172,7 @@ public class StoerWagnerMinimumCut<V, E>
 
     /**
      * Return a set of vertices on one side of the cut
-     * 
+     *
      * @return a set of vertices on one side of the cut
      */
     public Set<V> minCut()
@@ -180,10 +183,10 @@ public class StoerWagnerMinimumCut<V, E>
     /**
      * Merges vertex $t$ into vertex $s$, summing the weights as required. Returns the merged vertex
      * and the sum of its weights
-     * 
+     *
      * @param s the first vertex
      * @param t the second vertex
-     * 
+     *
      * @return the merged vertex and its weight
      */
     protected VertexAndWeight mergeVertices(Set<V> s, Set<V> t)
@@ -223,7 +226,7 @@ public class StoerWagnerMinimumCut<V, E>
 
     /**
      * Compute the sum of the weights entering a vertex
-     * 
+     *
      * @param v the vertex
      * @return the sum of the weights entering a vertex
      */
@@ -248,7 +251,7 @@ public class StoerWagnerMinimumCut<V, E>
 
         /**
          * Construct a new weighted vertex.
-         * 
+         *
          * @param v the vertex
          * @param w the weight of the vertex
          * @param active whether it is active
