@@ -263,11 +263,11 @@ public class ChordalityInspector<V, E>
      * vertices {@code a}, {@code b} and {@code c} on this cycle (there must be no edge between
      * {@code a} and {@code c}.
      *
-     * @param a vertex that belongs to the cycle
-     * @param b vertex that belongs to the cycle
-     * @param c vertex that belongs to the cycle
+     * @param firstNonAdjacent vertex that belongs to the cycle
+     * @param pivotVertex vertex that belongs to the cycle
+     * @param secondNonAdjacent vertex that belongs to the cycle
      */
-    private void findHole(V a, V b, V c)
+    private void findHole(V firstNonAdjacent, V pivotVertex, V secondNonAdjacent)
     {
         // b is the first vertex in the order produced by the iterator whose predecessors don't form
         // a clique.
@@ -279,15 +279,15 @@ public class ChordalityInspector<V, E>
         // except for a and b.
         // then it finds a chordless subcycle in linear time and returns it.
 
-        List<V> cycle = new ArrayList<>(Arrays.asList(a, b, c));
+        List<V> cycle = new ArrayList<>(Arrays.asList(firstNonAdjacent, pivotVertex, secondNonAdjacent));
         Map<V, Boolean> visited =
             CollectionUtil.newHashMapWithExpectedSize(graph.vertexSet().size());
         for (V vertex : graph.vertexSet()) {
             visited.put(vertex, false);
         }
-        visited.put(a, true);
-        visited.put(b, true);
-        dfsVisit(cycle, visited, a, b, c);
+        visited.put(firstNonAdjacent, true);
+        visited.put(pivotVertex, true);
+        dfsVisit(cycle, visited, firstNonAdjacent, pivotVertex, secondNonAdjacent);
         cycle = minimizeCycle(cycle);
         hole = new GraphWalk<>(graph, cycle, 0);
     }
