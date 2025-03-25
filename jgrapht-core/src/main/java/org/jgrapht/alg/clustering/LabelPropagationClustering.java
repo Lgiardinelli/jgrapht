@@ -26,7 +26,7 @@ import java.util.stream.*;
 
 /**
  * A label propagation clustering algorithm.
- * 
+ *
  * <p>
  * The algorithm is a near linear time algorithm capable of discovering communities in large graphs.
  * It is described in detail in the following
@@ -35,18 +35,18 @@ import java.util.stream.*;
  * <li>Raghavan, U. N., Albert, R., and Kumara, S. (2007). Near linear time algorithm to detect
  * community structures in large-scale networks. Physical review E, 76(3), 036106.</li>
  * </ul>
- * 
+ *
  * <p>
  * As the paper title suggests the running time is close to linear. The algorithm runs in
  * iterations, each of which runs in $O(n + m)$ where $n$ is the number of vertices and $m$ is the
  * number of edges. The authors found experimentally that in most cases, 95% of the nodes or more
  * are classified correctly by the end of iteration 5. See the paper for more details.
- * 
+ *
  * <p>
  * The algorithm is randomized, meaning that two runs on the same graph may return different
  * results. If the user requires deterministic behavior, the random number generator can be provided
  * by the constructor.
- * 
+ *
  * @author Dimitrios Michail
  *
  * @param <V> the graph vertex type
@@ -62,39 +62,7 @@ public class LabelPropagationClustering<V, E>
 
     /**
      * Create a new clustering algorithm.
-     * 
-     * @param graph the graph (needs to be undirected)
-     */
-    public LabelPropagationClustering(Graph<V, E> graph)
-    {
-        this(graph, 0, new Random());
-    }
-
-    /**
-     * Create a new clustering algorithm.
-     * 
-     * @param graph the graph (needs to be undirected)
-     * @param rng random number generator
-     */
-    public LabelPropagationClustering(Graph<V, E> graph, Random rng)
-    {
-        this(graph, 0, rng);
-    }
-
-    /**
-     * Create a new clustering algorithm.
-     * 
-     * @param graph the graph (needs to be undirected)
-     * @param maxIterations maximum number of iterations (zero means no limit)
-     */
-    public LabelPropagationClustering(Graph<V, E> graph, int maxIterations)
-    {
-        this(graph, maxIterations, new Random());
-    }
-
-    /**
-     * Create a new clustering algorithm.
-     * 
+     *
      * @param graph the graph (needs to be undirected)
      * @param maxIterations maximum number of iterations (zero means no limit)
      * @param rng random number generator
@@ -134,7 +102,7 @@ public class LabelPropagationClustering<V, E>
 
         /**
          * Initialize the computation
-         * 
+         *
          * @param graph the graph
          * @param rng the random number generator
          * @param maxIterations maximum iterations
@@ -154,7 +122,7 @@ public class LabelPropagationClustering<V, E>
 
         /**
          * Main loop of the algorithm
-         * 
+         *
          * @return the clusters
          */
         public List<Set<V>> compute()
@@ -190,7 +158,7 @@ public class LabelPropagationClustering<V, E>
         /**
          * Stopping criterion. Perform the iterative process until every node in the network has a
          * label equal to a label that the maximum number of its neighbors belong to.
-         * 
+         *
          * @return true whether we should stop, false otherwise
          */
         private boolean shouldStop()
@@ -213,7 +181,7 @@ public class LabelPropagationClustering<V, E>
         /**
          * Compute the frequency of the labels of all neighbors of a vertex and the maximum
          * frequency of the vertices, which have a label not equal to the input vertex label.
-         * 
+         *
          * @param v the input vertex
          * @return the frequency of the labels of all neighbors of a vertex and the maximum label
          *         frequency of the vertices with a label not equal to the input vertex label
@@ -239,7 +207,7 @@ public class LabelPropagationClustering<V, E>
 
         /**
          * Update the label of a vertex.
-         * 
+         *
          * @param v the vertex
          * @return true if a label change occurred
          */
@@ -273,7 +241,7 @@ public class LabelPropagationClustering<V, E>
         /**
          * Compute the final communities from the labels. We need to do some extra work due to the
          * way the algorithm works, as described in the following paragraph from the original paper.
-         * 
+         *
          * "When the algorithm terminates it is possible that two or more disconnected groups of
          * nodes have the same label (the groups are connected in the network via other nodes of
          * different labels). This happens when two or more neighbors of a node receive its label
@@ -281,7 +249,7 @@ public class LabelPropagationClustering<V, E>
          * communities adopting the same label. In such cases, after the algorithm terminates one
          * can run a simple breadth-first search on the sub-networks of each individual groups to
          * separate the disconnected communities."
-         * 
+         *
          * @return the clustering
          */
         private List<Set<V>> computeCommunities()
@@ -321,7 +289,7 @@ public class LabelPropagationClustering<V, E>
 
         /**
          * Convert from a map representation to a list of sets.
-         * 
+         *
          * @param graph the graph
          * @param labels the map representation
          * @return the list of sets
