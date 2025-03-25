@@ -299,24 +299,24 @@ public class ChordalityInspector<V, E>
      *
      * @param cycle already computed part of the cycle
      * @param visited the map that defines which vertex has been visited by this method
-     * @param finish the last vertex in the cycle.
-     * @param middle the vertex, which must be adjacent onl
-     * @param current currently examined vertex.
+     * @param targetVertex the last vertex in the cycle.
+     * @param forbiddenVertex the vertex, which must be adjacent onl
+     * @param currentVertex currently examined vertex.
      */
-    private void dfsVisit(List<V> cycle, Map<V, Boolean> visited, V finish, V middle, V current)
+    private void dfsVisit(List<V> cycle, Map<V, Boolean> visited, V targetVertex, V forbiddenVertex, V currentVertex)
     {
-        visited.put(current, true);
-        for (E edge : graph.edgesOf(current)) {
-            V opposite = Graphs.getOppositeVertex(graph, edge, current);
-            if ((!visited.get(opposite) && !graph.containsEdge(opposite, middle))
-                || opposite.equals(finish))
+        visited.put(currentVertex, true);
+        for (E edge : graph.edgesOf(currentVertex)) {
+            V opposite = Graphs.getOppositeVertex(graph, edge, currentVertex);
+            if ((!visited.get(opposite) && !graph.containsEdge(opposite, forbiddenVertex))
+                || opposite.equals(targetVertex))
             {
                 cycle.add(opposite);
-                if (opposite.equals(finish)) {
+                if (opposite.equals(targetVertex)) {
                     return;
                 }
-                dfsVisit(cycle, visited, finish, middle, opposite);
-                if (cycle.get(cycle.size() - 1).equals(finish)) {
+                dfsVisit(cycle, visited, targetVertex, forbiddenVertex, opposite);
+                if (cycle.get(cycle.size() - 1).equals(targetVertex)) {
                     return;
                 } else {
                     cycle.remove(cycle.size() - 1);
