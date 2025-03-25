@@ -314,11 +314,11 @@ public class HierholzerEulerianCycle<V, E>
         double totalWeight = 0d;
         List<E> result = new ArrayList<>();
 
-        EdgeNode it = eulerianHead;
-        while (it != null) {
-            result.add(it.e);
-            totalWeight += graph.getEdgeWeight(it.e);
-            it = it.next;
+        EdgeNode edgeIterator = eulerianHead;
+        while (edgeIterator != null) {
+            result.add(edgeIterator.e);
+            totalWeight += graph.getEdgeWeight(edgeIterator.e);
+            edgeIterator = edgeIterator.next;
         }
         return new GraphWalk<>(graph, startVertex, startVertex, result, totalWeight);
     }
