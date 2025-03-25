@@ -47,14 +47,14 @@ import java.util.stream.*;
  * Seymour, and K. Vuskovic. Recognizing Berge Graphs. Combinatorica 25(2): 143--186, 2003.
  * <p>
  * Special Thanks to Maria Chudnovsky for her kind help.
- * 
+ *
  * <p>
  * The runtime complexity of this implementation is $O(|V|^9|)$. This implementation is far more
  * efficient than simplistically testing whether graph $G$ or its complement $\overline{G}$ have an
  * odd cycle, because testing whether one graph can be found as an induced subgraph of another is
  * <a href="https://en.wikipedia.org/wiki/Induced_subgraph_isomorphism_problem">known</a> to be
  * NP-hard.
- * 
+ *
  * @author Philipp S. Kaesgen (pkaesgen@freenet.de)
  *
  * @param <V> the graph vertex type
@@ -68,7 +68,7 @@ public class BergeGraphInspector<V, E>
 
     /**
      * Lists the vertices which are covered by two paths
-     * 
+     *
      * @param p1 A Path in g
      * @param p2 A Path in g
      * @return Set of vertices covered by both p1 and p2
@@ -83,7 +83,7 @@ public class BergeGraphInspector<V, E>
 
     /**
      * Assembles a GraphPath of the Paths S and T. Required for the Pyramid Checker
-     * 
+     *
      * @param g A Graph
      * @param pathS A Path in g
      * @param pathT A Path in g
@@ -174,84 +174,219 @@ public class BergeGraphInspector<V, E>
         }
     }
 
+
+    // Vérifie que aCandidate est adjacent à au plus un des sommets de la base
+    private boolean isValidTopCandidate(Graph<V, E> g, V aCandidate, V b1, V b2, V b3) {
+        if (aCandidate.equals(b1) || aCandidate.equals(b2) || aCandidate.equals(b3))
+            return false;
+        int count = 0;
+        if (g.containsEdge(aCandidate, b1))
+            count++;
+        if (g.containsEdge(aCandidate, b2))
+            count++;
+        if (g.containsEdge(aCandidate, b3))
+            count++;
+        return count <= 1;
+    }
+
+    // Récupère les candidats valides pour s1
+    private List<V> getValidS1Candidates(Graph<V, E> g, V aCandidate, V b1, V b2, V b3) {
+        List<V> result = new ArrayList<>();
+        for (V s : g.vertexSet()) {
+            if (s.equals(aCandidate))
+                continue;
+            if (!g.containsEdge(s, aCandidate))
+                continue;
+            if (s.equals(b2) || s.equals(b3))
+                continue;
+            if (!s.equals(b1) && (g.containsEdge(s, b2) || g.containsEdge(s, b3)))
+                continue;
+            result.add(s);
+        }
+        return result;
+    }
+
+    // Candidats valides pour s2 (en excluant s1 déjà choisi)
+    private List<V> getValidS2Candidates(Graph<V, E> g, V aCandidate, V b1, V b2, V b3, V s1) {
+        List<V> result = new ArrayList<>();
+        for (V s : g.vertexSet()) {
+            if (s.equals(aCandidate))
+                continue;
+            if (!g.containsEdge(s, aCandidate))
+                continue;
+            if (s.equals(s1))
+                continue;
+            if (s.equals(b1) || s.equals(b3))
+                continue;
+            if (!s.equals(b2) && (g.containsEdge(s, b1) || g.containsEdge(s, b3)))
+                continue;
+            result.add(s);
+        }
+        return result;
+    }
+
+    // Candidats valides pour s3 (en excluant s1 et s2)
+    private List<V> getValidS3Candidates(Graph<V, E> g, V aCandidate, V b1, V b2, V b3, V s1, V s2) {
+        List<V> result = new ArrayList<>();
+        for (V s : g.vertexSet()) {
+            if (s.equals(aCandidate))
+                continue;
+            if (!g.containsEdge(s, aCandidate))
+                continue;
+            if (s.equals(s2))
+                continue;
+            if (s.equals(b1) || s.equals(b2))
+                continue;
+            if (!s.equals(b3) && (g.containsEdge(s, b1) || g.containsEdge(s, b2)))
+                continue;
+            result.add(s);
+        }
+        return result;
+    }
+
+    // Calcule les chemins pour le cas m1
+    private void computePathsForM1(Graph<V, E> g, Set<V> setM, V b1, V b2, V b3, V s1, V s2, V s3,
+                                   Map<V, GraphPath<V, E>> mapS1, Map<V, GraphPath<V, E>> mapT1) {
+        for (V m : setM) {
+            Set<V> validInterior = new HashSet<>(setM);
+            validInterior.removeIf(i -> g.containsEdge(i, b2) || g.containsEdge(i, s2)
+                    || g.containsEdge(i, b3) || g.containsEdge(i, s3));
+            validInterior.add(m);
+            validInterior.add(s1);
+            Graph<V, E> subg = new AsSubgraph<>(g, validInterior);
+            mapS1.put(m, new DijkstraShortestPath<>(subg).getPath(m, s1));
+            validInterior.remove(s1);
+            validInterior.add(b1);
+            subg = new AsSubgraph<>(g, validInterior);
+            mapT1.put(m, new DijkstraShortestPath<>(subg).getPath(b1, m));
+        }
+    }
+
+    // Calcule les chemins pour le cas m2
+    private void computePathsForM2(Graph<V, E> g, Set<V> setM, V b1, V b2, V b3, V s1, V s2, V s3,
+                                   Map<V, GraphPath<V, E>> mapS2, Map<V, GraphPath<V, E>> mapT2) {
+        for (V m : setM) {
+            Set<V> validInterior = new HashSet<>(setM);
+            validInterior.removeIf(i -> g.containsEdge(i, b1) || g.containsEdge(i, s1)
+                    || g.containsEdge(i, b3) || g.containsEdge(i, s3));
+            validInterior.add(m);
+            validInterior.add(s2);
+            Graph<V, E> subg = new AsSubgraph<>(g, validInterior);
+            mapS2.put(m, new DijkstraShortestPath<>(subg).getPath(m, s2));
+            validInterior.remove(s2);
+            validInterior.add(b2);
+            subg = new AsSubgraph<>(g, validInterior);
+            mapT2.put(m, new DijkstraShortestPath<>(subg).getPath(b2, m));
+        }
+    }
+
+    // Calcule les chemins pour le cas m3
+    private void computePathsForM3(Graph<V, E> g, Set<V> setM, V b1, V b2, V b3, V s1, V s2, V s3,
+                                   Map<V, GraphPath<V, E>> mapS3, Map<V, GraphPath<V, E>> mapT3) {
+        for (V m : setM) {
+            Set<V> validInterior = new HashSet<>(setM);
+            validInterior.removeIf(i -> g.containsEdge(i, b1) || g.containsEdge(i, s1)
+                    || g.containsEdge(i, b2) || g.containsEdge(i, s2));
+            validInterior.add(m);
+            validInterior.add(s3);
+            Graph<V, E> subg = new AsSubgraph<>(g, validInterior);
+            mapS3.put(m, new DijkstraShortestPath<>(subg).getPath(m, s3));
+            validInterior.remove(s3);
+            validInterior.add(b3);
+            subg = new AsSubgraph<>(g, validInterior);
+            mapT3.put(m, new DijkstraShortestPath<>(subg).getPath(b3, m));
+        }
+    }
+
+    // Vérifie, à partir des maps de chemins, si une configuration de pyramide est trouvée
+    private boolean checkPyramidPaths(Graph<V, E> g,
+                                      Map<V, GraphPath<V, E>> mapS1, Map<V, GraphPath<V, E>> mapT1,
+                                      Map<V, GraphPath<V, E>> mapS2, Map<V, GraphPath<V, E>> mapT2,
+                                      Map<V, GraphPath<V, E>> mapS3, Map<V, GraphPath<V, E>> mapT3,
+                                      Set<V> setM, V b1, V b2, V b3,
+                                      V s1, V s2, V s3, V aCandidate) {
+        Set<V> setM1 = new HashSet<>(setM);
+        setM1.add(b1);
+        for (V m1 : setM1) {
+            GraphPath<V, E> pathP1 = p(g, mapS1.get(m1), mapT1.get(m1), m1, b1, b2, b3, s1, s2, s3);
+            if (pathP1 == null)
+                continue;
+            Set<V> setM2 = new HashSet<>(setM);
+            setM2.add(b2);
+            for (V m2 : setM2) {
+                GraphPath<V, E> pathP2 = p(g, mapS2.get(m2), mapT2.get(m2), m2, b2, b1, b3, s2, s1, s3);
+                if (pathP2 == null)
+                    continue;
+                Set<V> setM3 = new HashSet<>(setM);
+                setM3.add(b3);
+                for (V m3 : setM3) {
+                    GraphPath<V, E> pathP3 = p(g, mapS3.get(m3), mapT3.get(m3), m3, b3, b1, b2, s3, s1, s2);
+                    if (pathP3 == null)
+                        continue;
+                    if (certify) {
+                        if ((pathP1.getLength() + pathP2.getLength()) % 2 == 0) {
+                            Set<V> set = new HashSet<>();
+                            set.addAll(pathP1.getVertexList());
+                            set.addAll(pathP2.getVertexList());
+                            set.add(aCandidate);
+                            bfOddHoleCertificate(new AsSubgraph<>(g, set));
+                        } else if ((pathP1.getLength() + pathP3.getLength()) % 2 == 0) {
+                            Set<V> set = new HashSet<>();
+                            set.addAll(pathP1.getVertexList());
+                            set.addAll(pathP3.getVertexList());
+                            set.add(aCandidate);
+                            bfOddHoleCertificate(new AsSubgraph<>(g, set));
+                        } else {
+                            Set<V> set = new HashSet<>();
+                            set.addAll(pathP3.getVertexList());
+                            set.addAll(pathP2.getVertexList());
+                            set.add(aCandidate);
+                            bfOddHoleCertificate(new AsSubgraph<>(g, set));
+                        }
+                    }
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     /**
-     * Checks whether a graph contains a pyramid. Running time: O(|V(g)|^9)
-     * 
+     * Checks whether a graph contains a pyramid. Running time: O(|V|^9)
+     *
+     * A pyramid has a base triangle (b1, b2, b3) and a top aCandidate,
+     * with three paths (via s1, s2, s3) linking the base to the top.
+     *
      * @param g Graph
      * @return Either it finds a pyramid (and hence an odd hole) in g, or it determines that g
      *         contains no pyramid
      */
     boolean containsPyramid(Graph<V, E> g)
     {
-        /*
-         * A pyramid looks like this:
-         * 
-         * b2-(T2)-m2-(S2)-s2 / | \ b1---(T1)-m1-(S1)-s1--a \ | / b3-(T3)-m3-(S3)-s3
-         * 
-         * Note that b1, b2, and b3 are connected and all names in parentheses are paths
-         * 
-         */
         Set<Set<V>> visitedTriangles = new HashSet<>();
         for (V b1 : g.vertexSet()) {
             for (V b2 : g.vertexSet()) {
-                if (b1 == b2 || !g.containsEdge(b1, b2))
+                if (b1.equals(b2) || !g.containsEdge(b1, b2))
                     continue;
                 for (V b3 : g.vertexSet()) {
-                    if (b3 == b1 || b3 == b2 || !g.containsEdge(b2, b3) || !g.containsEdge(b1, b3))
+                    if (b3.equals(b1) || b3.equals(b2) || !g.containsEdge(b2, b3) || !g.containsEdge(b1, b3))
                         continue;
-
-                    // Triangle detected for the pyramid base
-                    Set<V> triangles = new HashSet<>();
-                    triangles.add(b1);
-                    triangles.add(b2);
-                    triangles.add(b3);
-                    if (visitedTriangles.contains(triangles)) {
+                    Set<V> triangle = new HashSet<>(Arrays.asList(b1, b2, b3));
+                    if (visitedTriangles.contains(triangle))
                         continue;
-                    }
-                    visitedTriangles.add(triangles);
+                    visitedTriangles.add(triangle);
 
                     for (V aCandidate : g.vertexSet()) {
-                        if (aCandidate == b1 || aCandidate == b2 || aCandidate == b3 ||
-                        // a is adjacent to at most one of b1,b2,b3
-                            g.containsEdge(aCandidate, b1) && g.containsEdge(aCandidate, b2)
-                            || g.containsEdge(aCandidate, b2) && g.containsEdge(aCandidate, b3)
-                            || g.containsEdge(aCandidate, b1) && g.containsEdge(aCandidate, b3))
-                        {
+                        if (!isValidTopCandidate(g, aCandidate, b1, b2, b3))
                             continue;
-                        }
 
-                        // aCandidate could now be the top of the pyramid
-                        for (V s1 : g.vertexSet()) {
-                            if (s1 == aCandidate || !g.containsEdge(s1, aCandidate) || s1 == b2
-                                || s1 == b3
-                                || s1 != b1 && (g.containsEdge(s1, b2) || g.containsEdge(s1, b3)))
-                            {
-                                continue;
-                            }
+                        // Pour aCandidate, on cherche des candidats pour s1, s2 et s3
+                        for (V s1 : getValidS1Candidates(g, aCandidate, b1, b2, b3)) {
+                            for (V s2 : getValidS2Candidates(g, aCandidate, b1, b2, b3, s1)) {
+                                for (V s3 : getValidS3Candidates(g, aCandidate, b1, b2, b3, s1, s2)) {
 
-                            for (V s2 : g.vertexSet()) {
-                                if (s2 == aCandidate || !g.containsEdge(s2, aCandidate)
-                                    || g.containsEdge(s1, s2) || s1 == s2 || s2 == b1 || s2 == b3
-                                    || s2 != b2
-                                        && (g.containsEdge(s2, b1) || g.containsEdge(s2, b3)))
-                                {
-                                    continue;
-                                }
-
-                                for (V s3 : g.vertexSet()) {
-                                    if (s3 == aCandidate || !g.containsEdge(s3, aCandidate)
-                                        || g.containsEdge(s3, s2) || s1 == s3 || s3 == s2
-                                        || g.containsEdge(s1, s3) || s3 == b1 || s3 == b2
-                                        || s3 != b3
-                                            && (g.containsEdge(s3, b1) || g.containsEdge(s3, b2)))
-                                    {
-                                        continue;
-                                    }
-
-                                    // s1, s2, s3 could now be the closest vertices to the top
-                                    // vertex of the pyramid
-                                    Set<V> setM = new HashSet<>();
-                                    setM.addAll(g.vertexSet());
+                                    // Détermine setM = V(g) \ {b1, b2, b3, s1, s2, s3}
+                                    Set<V> setM = new HashSet<>(g.vertexSet());
                                     setM.remove(b1);
                                     setM.remove(b2);
                                     setM.remove(b3);
@@ -259,149 +394,35 @@ public class BergeGraphInspector<V, E>
                                     setM.remove(s2);
                                     setM.remove(s3);
 
-                                    Map<V, GraphPath<V, E>> mapS1 = new HashMap<>(),
-                                        mapS2 = new HashMap<>(), mapS3 = new HashMap<>(),
-                                        mapT1 = new HashMap<>(), mapT2 = new HashMap<>(),
-                                        mapT3 = new HashMap<>();
+                                    Map<V, GraphPath<V, E>> mapS1 = new HashMap<>();
+                                    Map<V, GraphPath<V, E>> mapT1 = new HashMap<>();
+                                    Map<V, GraphPath<V, E>> mapS2 = new HashMap<>();
+                                    Map<V, GraphPath<V, E>> mapT2 = new HashMap<>();
+                                    Map<V, GraphPath<V, E>> mapS3 = new HashMap<>();
+                                    Map<V, GraphPath<V, E>> mapT3 = new HashMap<>();
 
-                                    // find paths which could be the edges of the pyramid
-                                    for (V m1 : setM) {
-                                        Set<V> validInterior = new HashSet<>();
-                                        validInterior.addAll(setM);
-                                        validInterior.removeIf(
-                                            i -> g.containsEdge(i, b2) || g.containsEdge(i, s2)
-                                                || g.containsEdge(i, b3) || g.containsEdge(i, s3));
+                                    computePathsForM1(g, setM, b1, b2, b3, s1, s2, s3, mapS1, mapT1);
+                                    computePathsForM2(g, setM, b1, b2, b3, s1, s2, s3, mapS2, mapT2);
+                                    computePathsForM3(g, setM, b1, b2, b3, s1, s2, s3, mapS3, mapT3);
 
-                                        validInterior.add(m1);
-                                        validInterior.add(s1);
-                                        Graph<V, E> subg = new AsSubgraph<>(g, validInterior);
-                                        mapS1.put(
-                                            m1, new DijkstraShortestPath<>(subg).getPath(m1, s1));
-                                        validInterior.remove(s1);
-                                        validInterior.add(b1);
-                                        subg = new AsSubgraph<>(g, validInterior);
-                                        mapT1.put(
-                                            m1, new DijkstraShortestPath<>(subg).getPath(b1, m1));
-
+                                    if (checkPyramidPaths(g, mapS1, mapT1, mapS2, mapT2, mapS3, mapT3,
+                                            setM, b1, b2, b3, s1, s2, s3, aCandidate))
+                                    {
+                                        return true;
                                     }
-                                    for (V m2 : setM) {
-                                        Set<V> validInterior = new HashSet<>();
-                                        validInterior.addAll(setM);
-                                        validInterior.removeIf(
-                                            i -> g.containsEdge(i, b1) || g.containsEdge(i, s1)
-                                                || g.containsEdge(i, b3) || g.containsEdge(i, s3));
-                                        validInterior.add(m2);
-                                        validInterior.add(s2);
-                                        Graph<V, E> subg = new AsSubgraph<>(g, validInterior);
-                                        mapS2.put(
-                                            m2, new DijkstraShortestPath<>(subg).getPath(m2, s2));
-                                        validInterior.remove(s2);
-                                        validInterior.add(b2);
-                                        subg = new AsSubgraph<>(g, validInterior);
-                                        mapT2.put(
-                                            m2, new DijkstraShortestPath<>(subg).getPath(b2, m2));
-
-                                    }
-                                    for (V m3 : setM) {
-                                        Set<V> validInterior = new HashSet<>();
-                                        validInterior.addAll(setM);
-                                        validInterior.removeIf(
-                                            i -> g.containsEdge(i, b1) || g.containsEdge(i, s1)
-                                                || g.containsEdge(i, b2) || g.containsEdge(i, s2));
-                                        validInterior.add(m3);
-                                        validInterior.add(s3);
-
-                                        Graph<V, E> subg = new AsSubgraph<>(g, validInterior);
-                                        mapS3.put(
-                                            m3, new DijkstraShortestPath<>(subg).getPath(m3, s3));
-                                        validInterior.remove(s3);
-                                        validInterior.add(b3);
-                                        subg = new AsSubgraph<>(g, validInterior, null);
-                                        mapT3.put(
-                                            m3, new DijkstraShortestPath<>(subg).getPath(b3, m3));
-                                    }
-
-                                    // Check if all edges of a pyramid are valid
-                                    Set<V> setM1 = new HashSet<>();
-                                    setM1.addAll(setM);
-                                    setM1.add(b1);
-                                    for (V m1 : setM1) {
-                                        GraphPath<V, E> pathP1 = p(
-                                            g, mapS1.get(m1), mapT1.get(m1), m1, b1, b2, b3, s1, s2,
-                                            s3);
-                                        if (pathP1 == null)
-                                            continue;
-                                        Set<V> setM2 = new HashSet<>();
-                                        setM2.addAll(setM);
-                                        setM2.add(b2);
-                                        for (V m2 : setM) {
-                                            GraphPath<V, E> pathP2 = p(
-                                                g, mapS2.get(m2), mapT2.get(m2), m2, b2, b1, b3, s2,
-                                                s1, s3);
-                                            if (pathP2 == null)
-                                                continue;
-                                            Set<V> setM3 = new HashSet<>();
-                                            setM3.addAll(setM);
-                                            setM3.add(b3);
-                                            for (V m3 : setM3) {
-                                                GraphPath<V, E> pathP3 = p(
-                                                    g, mapS3.get(m3), mapT3.get(m3), m3, b3, b1, b2,
-                                                    s3, s1, s2);
-                                                if (pathP3 == null)
-                                                    continue;
-                                                if (certify) {
-                                                    if ((pathP1.getLength() + pathP2.getLength())
-                                                        % 2 == 0)
-                                                    {
-                                                        Set<V> set = new HashSet<>();
-                                                        set.addAll(pathP1.getVertexList());
-                                                        set.addAll(pathP2.getVertexList());
-                                                        set.add(aCandidate);
-                                                        bfOddHoleCertificate(
-                                                            new AsSubgraph<>(g, set));
-                                                    } else if ((pathP1.getLength()
-                                                        + pathP3.getLength()) % 2 == 0)
-                                                    {
-                                                        Set<V> set = new HashSet<>();
-                                                        set.addAll(pathP1.getVertexList());
-                                                        set.addAll(pathP3.getVertexList());
-                                                        set.add(aCandidate);
-                                                        bfOddHoleCertificate(
-                                                            new AsSubgraph<>(g, set));
-                                                    } else {
-                                                        Set<V> set = new HashSet<>();
-                                                        set.addAll(pathP3.getVertexList());
-                                                        set.addAll(pathP2.getVertexList());
-                                                        set.add(aCandidate);
-                                                        bfOddHoleCertificate(
-                                                            new AsSubgraph<>(g, set));
-                                                    }
-                                                }
-                                                return true;
-
-                                            }
-
-                                        }
-
-                                    }
-
                                 }
                             }
-
                         }
-
                     }
-
                 }
             }
         }
-
         return false;
     }
 
     /**
      * Finds all Components of a set F contained in V(g)
-     * 
+     *
      * @param g A graph
      * @param f A vertex subset of g
      * @return Components of F in g
@@ -413,7 +434,7 @@ public class BergeGraphInspector<V, E>
 
     /**
      * Checks whether a graph contains a Jewel. Running time: O(|V(g)|^6)
-     * 
+     *
      * @param g Graph
      * @return Decides whether there is a jewel in g
      */
@@ -498,7 +519,7 @@ public class BergeGraphInspector<V, E>
 
     /**
      * Checks whether a graph contains a clean shortest odd hole. Running time: O(|V(g)|^4)
-     * 
+     *
      * @param g Graph containing no pyramid or jewel
      * @return Decides whether g contains a clean shortest odd hole
      */
@@ -557,7 +578,7 @@ public class BergeGraphInspector<V, E>
 
     /**
      * Returns a path in g from start to end avoiding the vertices in X
-     * 
+     *
      * @param g A Graph
      * @param start start vertex
      * @param end end vertex
@@ -578,7 +599,7 @@ public class BergeGraphInspector<V, E>
     /**
      * Checks whether the vertex set of a graph without a vertex set X contains a shortest odd hole.
      * Running time: O(|V(g)|^4)
-     * 
+     *
      * @param g Graph containing neither pyramid nor jewel
      * @param x Subset of V(g) and a possible Cleaner for an odd hole
      * @return Determines whether g has an odd hole such that X is a near-cleaner for it
@@ -651,7 +672,7 @@ public class BergeGraphInspector<V, E>
     /**
      * Checks whether a clean shortest odd hole is in g or whether X is a cleaner for an amenable
      * shortest odd hole
-     * 
+     *
      * @param g A graph, containing no pyramid or jewel
      * @param x A subset X of V(g) and a possible Cleaner for an odd hole
      * @return Returns whether g has an odd hole or there is no shortest odd hole in C such that X
@@ -665,7 +686,7 @@ public class BergeGraphInspector<V, E>
     /**
      * Checks whether a graph has a configuration of type T1. A configuration of type T1 in g is a
      * hole of length 5
-     * 
+     *
      * @param g A Graph
      * @return whether g contains a configuration of Type T1 (5-cycle)
      */
@@ -712,7 +733,7 @@ public class BergeGraphInspector<V, E>
 
     /**
      * A vertex y is X-complete if y contained in V(g)\X is adjacent to every vertex in X.
-     * 
+     *
      * @param g A Graph
      * @param y Vertex whose X-completeness is to assess
      * @param x Set of vertices
@@ -725,7 +746,7 @@ public class BergeGraphInspector<V, E>
 
     /**
      * Returns all anticomponents of a graph and a vertex set.
-     * 
+     *
      * @param g A Graph
      * @param y A set of vertices
      * @return List of anticomponents of Y in g
@@ -756,7 +777,7 @@ public class BergeGraphInspector<V, E>
      * X-complete or adjacent to v2 or adjacent to v3</li>
      * </ul>
      * An example is the complement graph of a cycle-7-graph
-     * 
+     *
      * @param g A Graph
      * @return whether g contains a configuration of Type T2
      */
@@ -846,7 +867,7 @@ public class BergeGraphInspector<V, E>
 
     /**
      * Reports whether v has at least one neighbour in set
-     * 
+     *
      * @param g A Graph
      * @param set A set of vertices
      * @param v A vertex
@@ -860,7 +881,7 @@ public class BergeGraphInspector<V, E>
     /**
      * For each anticomponent X, find the maximal connected subset F' containing v5 with the
      * properties that v1,v2 have no neighbours in F' and no vertex of F'\v5 is X-complete
-     * 
+     *
      * @param g A Graph
      * @param setX A set of vertices
      * @param v1 A vertex
@@ -880,7 +901,7 @@ public class BergeGraphInspector<V, E>
 
     /**
      * Reports whether a vertex has at least one nonneighbour in X
-     * 
+     *
      * @param g A Graph
      * @param v A Vertex
      * @param setX A set of vertices
@@ -906,7 +927,7 @@ public class BergeGraphInspector<V, E>
      * adjacent to v1 or adjacent to v2</li>
      * <li>if v5v6 is an edge then v6 is not X-complete</li>
      * </ul>
-     * 
+     *
      * @param g A Graph
      * @return whether g contains a configuration of Type T3
      */
@@ -1012,7 +1033,7 @@ public class BergeGraphInspector<V, E>
     /**
      * If true, the graph is not Berge. Checks whether g contains a Pyramid, Jewel, configuration
      * type 1, 2 or 3.
-     * 
+     *
      * @param g A Graph
      * @return whether g contains a pyramid, a jewel, a T1, a T2, or a T3
      */
@@ -1024,7 +1045,7 @@ public class BergeGraphInspector<V, E>
 
     /**
      * N(a,b) is the set of all {a,b}-complete vertices
-     * 
+     *
      * @param g A Graph
      * @param a A Vertex
      * @param b A Vertex
@@ -1040,7 +1061,7 @@ public class BergeGraphInspector<V, E>
     /**
      * r(a,b,c) is the cardinality of the largest anticomponent of N(a,b) that contains a
      * nonneighbour of c (or 0, if c is N(a,b)-complete)
-     * 
+     *
      * @param g a Graph
      * @param nAB The set of all {a,b}-complete vertices
      * @param c A vertex
@@ -1058,7 +1079,7 @@ public class BergeGraphInspector<V, E>
     /**
      * Y(a,b,c) is the union of all anticomponents of N(a,b) that have cardinality strictly greater
      * than r(a,b,c)
-     * 
+     *
      * @param g A graph
      * @param nAB The set of all {a,b}-complete vertices
      * @param c A vertex
@@ -1079,7 +1100,7 @@ public class BergeGraphInspector<V, E>
 
     /**
      * W(a,b,c) is the anticomponent of N(a,b)+{c} that contains c
-     * 
+     *
      * @param g A graph
      * @param nAB The set of all {a,b}-complete vertices
      * @param c A vertex
@@ -1099,7 +1120,7 @@ public class BergeGraphInspector<V, E>
 
     /**
      * Z(a,b,c) is the set of all (Y(a,b,c)+W(a,b,c))-complete vertices
-     * 
+     *
      * @param g A graph
      * @param nAB The set of all {a,b}-complete vertices
      * @param c A vertex
@@ -1120,7 +1141,7 @@ public class BergeGraphInspector<V, E>
 
     /**
      * X(a,b,c)=Y(a,b,c)+Z(a,b,c)
-     * 
+     *
      * @param g A graph
      * @param nAB The set of all {a,b}-complete vertices
      * @param c A vertex
@@ -1137,7 +1158,7 @@ public class BergeGraphInspector<V, E>
     /**
      * A triple (a,b,c) of vertices is relevant if a,b are distinct and nonadjacent, and c is not
      * contained in N(a,b) (possibly c is contained in {a,b}).
-     * 
+     *
      * @param g A graph
      * @param a A vertex
      * @param b A vertex
@@ -1151,7 +1172,7 @@ public class BergeGraphInspector<V, E>
 
     /**
      * Returns a set of vertex sets that may be near-cleaners for an amenable hole in g.
-     * 
+     *
      * @param g A graph
      * @return possible near-cleaners
      */
@@ -1201,13 +1222,13 @@ public class BergeGraphInspector<V, E>
      * thus, if there is an odd hole. If an odd hole is found, this checker will output that $G$ is
      * not Berge. If no odd hole is found, all near-cleaners for the complement graph are determined
      * and it will be proceeded as before. If again no odd hole is detected, $G$ is Berge.
-     * 
+     *
      * <p>
      * A certificate can be obtained through the {@link BergeGraphInspector#getCertificate} method,
      * if {@code computeCertificate} is {@code true}.
      * <p>
      * Running this method takes $O(|V|^9)$, and computing the certificate takes $O(|V|^5)$.
-     * 
+     *
      * @param g A graph
      * @param computeCertificate toggles certificate computation
      * @return whether g is Berge and, thus, perfect
@@ -1258,13 +1279,13 @@ public class BergeGraphInspector<V, E>
      * thus, if there is an odd hole. If an odd hole is found, this checker will output that $G$ is
      * not Berge. If no odd hole is found, all near-cleaners for the complement graph are determined
      * and it will be proceeded as before. If again no odd hole is detected, $G$ is Berge.
-     * 
+     *
      * <p>
      * This method by default does not compute a certificate. For obtaining a certificate, call
      * {@link BergeGraphInspector#isBerge} with {@code computeCertificate=true}.
      * <p>
      * Running this method takes $O(|V|^9)$.
-     * 
+     *
      * @param g A graph
      * @return whether g is Berge and, thus, perfect
      */
