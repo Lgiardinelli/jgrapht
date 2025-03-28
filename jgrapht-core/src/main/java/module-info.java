@@ -18,7 +18,7 @@
 
 /**
  * Defines the core APIs of the JGraphT library.
- * 
+ *
  * @since 1.5.0
  */
 module org.jgrapht.core
@@ -50,7 +50,6 @@ module org.jgrapht.core
     exports org.jgrapht.alg.similarity;
     exports org.jgrapht.alg.spanning;
     exports org.jgrapht.alg.tour;
-    exports org.jgrapht.alg.transform;
     exports org.jgrapht.alg.util;
     exports org.jgrapht.alg.util.extension;
     exports org.jgrapht.alg.vertexcover;

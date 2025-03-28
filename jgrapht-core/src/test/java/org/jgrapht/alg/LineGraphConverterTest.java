@@ -15,7 +15,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR LGPL-2.1-or-later
  */
-package org.jgrapht.alg.transform;
+package org.jgrapht.alg;
 
 import org.jgrapht.*;
 import org.jgrapht.generate.*;
