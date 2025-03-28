@@ -28,29 +28,29 @@ import java.util.function.*;
  * Maintains a cache of each vertex's neighbors. While lists of neighbors can be obtained from
  * {@link Graphs}, they are re-calculated at each invocation by walking a vertex's incident edges,
  * which becomes inordinately expensive when performed often.
- * 
+ *
  * <p>
  * The cache also keeps track of successors and predecessors for each vertex. This means that the
  * result of the union of calling predecessorsOf(v) and successorsOf(v) is equal to the result of
  * calling neighborsOf(v) for a given vertex v.
- * 
+ *
  * @param <V> the vertex type
  * @param <E> the edge type
- * 
+ *
  * @author Szabolcs Besenyei
  */
 public class NeighborCache<V, E>
     implements GraphListener<V, E>
 {
-    private Map<V, Neighbors<V>> successors = new HashMap<>();
-    private Map<V, Neighbors<V>> predecessors = new HashMap<>();
-    private Map<V, Neighbors<V>> neighbors = new HashMap<>();
+    private Map<V, Neighbors> successors = new HashMap<>();
+    private Map<V, Neighbors> predecessors = new HashMap<>();
+    private Map<V, Neighbors> neighbors = new HashMap<>();
 
     private Graph<V, E> graph;
 
     /**
      * Constructor
-     * 
+     *
      * @param graph the input graph
      * @throws NullPointerException if the input graph is {@code null}
      */
@@ -62,37 +62,37 @@ public class NeighborCache<V, E>
     /**
      * Returns the unique predecessors of the given vertex if it exists in the cache, otherwise it
      * is initialized.
-     * 
+     *
      * @param v the given vertex
      * @return the unique predecessors of the given vertex
      */
     public Set<V> predecessorsOf(V v)
     {
-        return fetch(v, predecessors, k -> new Neighbors<>(Graphs.predecessorListOf(graph, v)));
+        return fetch(v, predecessors, k -> new Neighbors(Graphs.predecessorListOf(graph, v)));
     }
 
     /**
      * Returns the unique successors of the given vertex if it exists in the cache, otherwise it is
      * initialized.
-     * 
+     *
      * @param v the given vertex
      * @return the unique successors of the given vertex
      */
     public Set<V> successorsOf(V v)
     {
-        return fetch(v, successors, k -> new Neighbors<>(Graphs.successorListOf(graph, v)));
+        return fetch(v, successors, k -> new Neighbors(Graphs.successorListOf(graph, v)));
     }
 
     /**
      * Returns the unique neighbors of the given vertex if it exists in the cache, otherwise it is
      * initialized.
-     * 
+     *
      * @param v the given vertex
      * @return the unique neighbors of the given vertex
      */
     public Set<V> neighborsOf(V v)
     {
-        return fetch(v, neighbors, k -> new Neighbors<>(Graphs.neighborListOf(graph, v)));
+        return fetch(v, neighbors, k -> new Neighbors(Graphs.neighborListOf(graph, v)));
     }
 
     /**
@@ -108,15 +108,15 @@ public class NeighborCache<V, E>
      */
     public List<V> neighborListOf(V v)
     {
-        Neighbors<V> nbrs = neighbors.get(v);
+        Neighbors nbrs = neighbors.get(v);
         if (nbrs == null) {
-            nbrs = new Neighbors<>(Graphs.neighborListOf(graph, v));
+            nbrs = new Neighbors(Graphs.neighborListOf(graph, v));
             neighbors.put(v, nbrs);
         }
         return nbrs.getNeighborList();
     }
 
-    private Set<V> fetch(V vertex, Map<V, Neighbors<V>> map, Function<V, Neighbors<V>> func)
+    private Set<V> fetch(V vertex, Map<V, Neighbors> map, Function<V, Neighbors> func)
     {
         return map.computeIfAbsent(vertex, func).getNeighbors();
     }
@@ -194,7 +194,7 @@ public class NeighborCache<V, E>
      * Stores cached neighbors for a single vertex. Includes support for live neighbor sets and
      * duplicate neighbors.
      */
-    static class Neighbors<V>
+    class Neighbors
     {
         private Map<V, ModifiableInteger> neighborCounts = new LinkedHashMap<>();
 
