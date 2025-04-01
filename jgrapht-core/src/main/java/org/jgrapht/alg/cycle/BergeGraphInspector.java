@@ -975,6 +975,11 @@ public class BergeGraphInspector<V, E>
                 setF.add(x);
         }
 
+        if (action(g, v1, v2, v5, setX, setF, fPrime)) return true;
+        return false;
+    }
+
+    private boolean action(Graph<V, E> g, V v1, V v2, V v5, Set<V> setX, Set<V> setF, Set<V> fPrime) {
         for (V v4 : g.vertexSet()) {
             if (v4 == v1 || v4 == v2 || v4 == v5 || g.containsEdge(v2, v4)
                 || g.containsEdge(v5, v4) || !g.containsEdge(v1, v4)
@@ -989,55 +994,64 @@ public class BergeGraphInspector<V, E>
                     || !hasANonneighbourInX(g, v3, setX)
                     || isYXComplete(g, v3, setX))
                     continue;
-                for (V v6 : setF) {
-                    if (v6 == v1 || v6 == v2 || v6 == v3 || v6 == v4 || v6 == v5
-                        || !g.containsEdge(v4, v6) || g.containsEdge(v1, v6)
-                        || g.containsEdge(v2, v6)
-                        || g.containsEdge(v5, v6) && !isYXComplete(g, v6, setX))
-                        continue;
-                    Set<V> verticesForPv5v6 = new HashSet<>();
-                    verticesForPv5v6.addAll(fPrime);
-                    verticesForPv5v6.add(v5);
-                    verticesForPv5v6.add(v6);
-                    verticesForPv5v6.remove(v1);
-                    verticesForPv5v6.remove(v2);
-                    verticesForPv5v6.remove(v3);
-                    verticesForPv5v6.remove(v4);
-
-                    if (new ConnectivityInspector<>(
-                        new AsSubgraph<>(g, verticesForPv5v6)).pathExists(v6, v5))
-                    {
-                        if (certify) {
-                            List<E> edgeList = new LinkedList<>();
-                            edgeList.add(g.getEdge(v1, v4));
-                            edgeList.add(g.getEdge(v4, v6));
-                            GraphPath<V, E> path =
-                                new DijkstraShortestPath<>(g).getPath(v6, v5);
-                            edgeList.addAll(path.getEdgeList());
-                            if (path.getLength() % 2 == 1) {
-                                V x = setX.iterator().next();
-                                edgeList.add(g.getEdge(v5, x));
-                                edgeList.add(g.getEdge(x, v1));
-                            } else {
-                                edgeList.add(g.getEdge(v5, v3));
-                                edgeList.add(g.getEdge(v3, v4));
-                                edgeList.add(g.getEdge(v4, v1));
-                            }
-
-                            double weight = edgeList
-                                .stream().mapToDouble(g::getEdgeWeight).sum();
-                            certificate =
-                                new GraphWalk<>(g, v1, v1, edgeList, weight);
-                        }
-                        return true;
-                    }
-
-                }
+                if (extracted(g, v1, v2, v5, setX, setF, fPrime, v4, v3)) return true;
 
             }
 
         }
         return false;
+    }
+
+    private boolean extracted(Graph<V, E> g, V v1, V v2, V v5, Set<V> setX, Set<V> setF, Set<V> fPrime, V v4, V v3) {
+        for (V v6 : setF) {
+            if (v6 == v1 || v6 == v2 || v6 == v3 || v6 == v4 || v6 == v5
+                || !g.containsEdge(v4, v6) || g.containsEdge(v1, v6)
+                || g.containsEdge(v2, v6)
+                || g.containsEdge(v5, v6) && !isYXComplete(g, v6, setX))
+                continue;
+            Set<V> verticesForPv5v6 = new HashSet<>();
+            verticesForPv5v6.addAll(fPrime);
+            verticesForPv5v6.add(v5);
+            verticesForPv5v6.add(v6);
+            verticesForPv5v6.remove(v1);
+            verticesForPv5v6.remove(v2);
+            verticesForPv5v6.remove(v3);
+            verticesForPv5v6.remove(v4);
+
+            if (new ConnectivityInspector<>(
+                new AsSubgraph<>(g, verticesForPv5v6)).pathExists(v6, v5))
+            {
+                return inspector(g, v1, v5, setX, v4, v3, v6);
+            }
+
+        }
+        return false;
+    }
+
+    private boolean inspector(Graph<V, E> g, V v1, V v5, Set<V> setX, V v4, V v3, V v6) {
+        if (certify) {
+            List<E> edgeList = new LinkedList<>();
+            edgeList.add(g.getEdge(v1, v4));
+            edgeList.add(g.getEdge(v4, v6));
+            GraphPath<V, E> path =
+                new DijkstraShortestPath<>(g).getPath(v6, v5);
+            edgeList.addAll(path.getEdgeList());
+            if (path.getLength() % 2 == 1) {
+                V x = setX.iterator().next();
+                edgeList.add(g.getEdge(v5, x));
+                edgeList.add(g.getEdge(x, v1));
+            } else {
+                edgeList.add(g.getEdge(v5, v3));
+                edgeList.add(g.getEdge(v3, v4));
+                edgeList.add(g.getEdge(v4, v1));
+            }
+
+            double weight = edgeList
+                .stream().mapToDouble(g::getEdgeWeight).sum();
+            certificate =
+                new GraphWalk<>(g, v1, v1, edgeList, weight);
+        }
+        return true;
     }
 
     /**
